@@ -41,6 +41,24 @@ authors="${mod_authors}" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''${mod_description}'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
+[[dependencies.${mod_id}]]
+modId="minestuck"
+mandatory=true
+versionRange="[1.12.0,)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.${mod_id}]]
+modId="geckolib"
+mandatory=true
+versionRange="[4.0,)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.${mod_id}]]
+modId="infiniverse"
+mandatory=true
+versionRange="[1.0.0,)"
+ordering="NONE"
+side="BOTH"
 [[dependencies.${mod_id}]] #optional
     # the modid of the dependency
     modId="forge" #mandatory
