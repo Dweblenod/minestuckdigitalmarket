@@ -1,6 +1,7 @@
 package com.dweb.minestuckmarket;
 
 import com.dweb.minestuckmarket.computer.ProgramSetup;
+import com.dweb.minestuckmarket.network.MMPackets;
 import com.mraof.minestuck.item.MSCreativeTabs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -44,6 +45,7 @@ public class MinestuckMarket {
     
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(ProgramSetup::registerMarketProgram);
+        event.enqueueWork(MMPackets::registerPackets);
     }
     
     private void addCreative(BuildCreativeModeTabContentsEvent event) {

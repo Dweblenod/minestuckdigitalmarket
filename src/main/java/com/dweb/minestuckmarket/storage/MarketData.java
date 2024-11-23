@@ -1,15 +1,18 @@
 package com.dweb.minestuckmarket.storage;
 
 import com.dweb.minestuckmarket.MinestuckMarket;
+import com.dweb.minestuckmarket.network.ClientMarketAccessPacket;
+import com.dweb.minestuckmarket.network.MMPackets;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -37,27 +40,34 @@ public class MarketData extends SavedData {
     
     }
     
+    @SubscribeEvent
+    public static void onPlayerTickEvent(TickEvent.PlayerTickEvent event) {
+        Player player = event.player;
+        
+        if (player.level().isClientSide || player instanceof FakePlayer)
+            return;
+        
+        if (player.level().getGameTime() % 60 != 0)
+            return;
+        
+        if (event.player instanceof ServerPlayer serverPlayer) {
+            MarketData data = MarketData.get(serverPlayer.server);
+            updateVisibleMarkets(data.marketContainers, serverPlayer);
+        }
+    }
+    
     public static MarketData load(CompoundTag nbt) {
         MarketData data = new MarketData();
         
         data.marketContainers.clear();
-        
-        ListTag marketContainerList = nbt.getList("market_containers", Tag.TAG_LIST);
-        for (int i = 0; i < marketContainerList.size(); i++) {
-            ListTag tag = marketContainerList.getList(i);
-            data.marketContainers.add(new MarketContainer(tag));
-        }
+        data.marketContainers.addAll(MarketContainer.createListFromNbt(nbt));
         
         return data;
     }
     
     @Override
     public CompoundTag save(CompoundTag compound) {
-        ListTag marketContainerList = new ListTag();
-        
-        marketContainerList.addAll(marketContainers.stream().map(MarketContainer::createTag).toList());
-        
-        compound.put("market_containers", marketContainerList);
+        compound.put(MarketContainer.NBT_LIST_NAME, MarketContainer.createNbtFromList(marketContainers));
         
         return compound;
     }
@@ -77,6 +87,12 @@ public class MarketData extends SavedData {
         setDirty();
     }
     
+    public static void updateVisibleMarkets(List<MarketContainer> marketContainers, ServerPlayer player) {
+        //TODO use config to set visibility
+        ClientMarketAccessPacket packet = new ClientMarketAccessPacket(marketContainers);
+        MMPackets.sendToPlayer(packet, player);
+    }
+    
     public static MarketData get(Level level) {
         MinecraftServer server = level.getServer();
         if (server == null)
@@ -93,8 +109,7 @@ public class MarketData extends SavedData {
     }
     
     @Override
-    public boolean isDirty()
-    {
+    public boolean isDirty() {
         return true;
     }
 }
