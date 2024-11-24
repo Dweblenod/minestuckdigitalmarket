@@ -2,6 +2,7 @@ package com.dweb.minestuckmarket;
 
 import com.dweb.minestuckmarket.computer.ProgramSetup;
 import com.dweb.minestuckmarket.network.MMPackets;
+import com.dweb.minestuckmarket.storage.PaymentTypes;
 import com.mraof.minestuck.item.MSCreativeTabs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -35,6 +36,7 @@ public class MinestuckMarket {
         eventBus.addListener(this::commonSetup);
         
         ITEMS.register(eventBus);
+        PaymentTypes.REGISTER.register(eventBus);
         
         MinecraftForge.EVENT_BUS.register(this);
         

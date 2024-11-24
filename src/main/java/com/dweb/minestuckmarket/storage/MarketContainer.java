@@ -4,21 +4,27 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 public class MarketContainer extends SimpleContainer {
     public static final int CONTAINER_SIZE = 27;
     public static final String NBT_LIST_NAME = "market_containers";
     
-    private UUID ownerId;
+    private Merchant owner;
     
-    public MarketContainer(UUID ownerId) {
+    public MarketContainer(Player owner) {
         super(CONTAINER_SIZE);
-        this.ownerId = ownerId;
+        this.owner = new Merchant(owner.getName(), owner.getUUID(), new HashMap<>());
+    }
+    
+    public MarketContainer(Merchant owner) {
+        super(CONTAINER_SIZE);
+        this.owner = owner;
     }
     
     public MarketContainer(ListTag containerNbt) {
@@ -26,8 +32,8 @@ public class MarketContainer extends SimpleContainer {
         fromTag(containerNbt);
     }
     
-    public UUID getOwnerId() {
-        return ownerId;
+    public Merchant getOwner() {
+        return owner;
     }
     
     public static List<MarketContainer> createListFromNbt(CompoundTag nbt) {
@@ -42,8 +48,7 @@ public class MarketContainer extends SimpleContainer {
         return marketContainers;
     }
     
-    public static ListTag createNbtFromList(List<MarketContainer> marketContainers)
-    {
+    public static ListTag createNbtFromList(List<MarketContainer> marketContainers) {
         ListTag marketContainerList = new ListTag();
         
         marketContainerList.addAll(marketContainers.stream().map(MarketContainer::createTag).toList());
@@ -60,7 +65,7 @@ public class MarketContainer extends SimpleContainer {
         
         for (int k = 0; k < containerNbt.size(); ++k) {
             if (k == 0) {
-                this.ownerId = containerNbt.getCompound(k).getUUID("owner_id");
+                this.owner = Merchant.fromTag(containerNbt.getCompound(k));
                 continue;
             }
             
@@ -74,11 +79,9 @@ public class MarketContainer extends SimpleContainer {
     
     @Override
     public ListTag createTag() {
-        ListTag listtag = new ListTag();
+        ListTag listTag = new ListTag();
         
-        CompoundTag ownerTag = new CompoundTag();
-        ownerTag.putUUID("owner_id", ownerId);
-        listtag.add(ownerTag);
+        listTag.add(owner.createTag());
         
         for (int i = 0; i < this.getContainerSize(); ++i) {
             ItemStack itemstack = this.getItem(i);
@@ -86,10 +89,10 @@ public class MarketContainer extends SimpleContainer {
                 CompoundTag compoundtag = new CompoundTag();
                 compoundtag.putByte("Slot", (byte) i);
                 itemstack.save(compoundtag);
-                listtag.add(compoundtag);
+                listTag.add(compoundtag);
             }
         }
         
-        return listtag;
+        return listTag;
     }
 }

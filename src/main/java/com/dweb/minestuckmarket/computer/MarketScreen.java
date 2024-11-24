@@ -22,6 +22,7 @@ public class MarketScreen extends Screen {
     private static final int GUI_HEIGHT = 176;
     
     private final ComputerBlockEntity computer;
+    private final List<ExtendedButton> marketButtons = new ArrayList<>();
     
     private int xOffset;
     private int yOffset;
@@ -38,26 +39,27 @@ public class MarketScreen extends Screen {
         yOffset = (this.height / 2) - (GUI_HEIGHT / 2);
         xOffset = (this.width / 2) - (GUI_WIDTH / 2);
         
-        List<MarketContainer> marketContainers = ClientMarketData.marketContainers;
-        List<ExtendedButton> marketButtons = new ArrayList<>();
+        initContainerButtons();
+    }
+    
+    private void initContainerButtons() {
+        marketButtons.clear();
         int containerOffset = 0;
-        for(MarketContainer container : marketContainers)
-        {
-            ExtendedButton iterateButton = new ExtendedButton(xOffset + 10, this.yOffset + 25 + (containerOffset * 5), 50, 16, Component.literal(container.getOwnerId().toString()), button -> containerClick());
+        
+        for (MarketContainer container : ClientMarketData.marketContainers) {
+            ExtendedButton iterateButton = new ExtendedButton(xOffset + 10, this.yOffset + 25 + (containerOffset * 5), 120, 16, container.getOwner().name(), button -> containerClick());
             marketButtons.add(iterateButton);
             addRenderableWidget(iterateButton);
             containerOffset++;
         }
     }
     
-    private void containerClick()
-    {
-    
+    private void containerClick() {
+        
     }
     
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
-    {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(graphics);
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -65,5 +67,21 @@ public class MarketScreen extends Screen {
         graphics.blit(GUI_BACKGROUND, xOffset, yOffset, 0, 0, GUI_WIDTH, GUI_HEIGHT);
         
         super.render(graphics, mouseX, mouseY, partialTicks);
+    }
+    
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+    
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
+    }
+    
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        //a hackey way to access the protected method exitProgram() when pressing ESC
+        return computer.gui.keyPressed(keyCode, scanCode, modifiers);
     }
 }
