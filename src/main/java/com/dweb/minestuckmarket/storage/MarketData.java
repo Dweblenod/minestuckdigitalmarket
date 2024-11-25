@@ -35,6 +35,8 @@ public class MarketData extends SavedData {
     
     private final List<MarketContainer> marketContainers = new ArrayList<>();
     
+    public static PaymentData TEMP_DATA = new PaymentData(PaymentTypes.BOONDOLLAR.get(), PaymentTypes.BOONDOLLAR.get().putData(5));
+    
     private MarketData() {
     }
     
@@ -59,17 +61,17 @@ public class MarketData extends SavedData {
             data.addNpcContainer(
                     Component.literal("Test 1"),
                     UUID.fromString("44f73f1e-4e4d-463d-8a25-fde5ae71f9c1"),
-                    List.of(Pair.of(Items.APPLE, 5)));
+                    List.of(Pair.of(Items.APPLE.getDefaultInstance(), 5)));
             
             data.addNpcContainer(
                     Component.literal("Test 2"),
                     UUID.fromString("44f73f1e-4e4d-463d-8a25-fde5ae71f9c2"),
-                    List.of(Pair.of(Items.OAK_BOAT, 2), Pair.of(MSItems.ALCHEMITER.get(), 1)));
+                    List.of(Pair.of(Items.OAK_BOAT.getDefaultInstance(), 2), Pair.of(MSItems.ALCHEMITER.get().getDefaultInstance(), 1)));
             
             data.marketContainers.forEach(marketContainer ->
             {
                 if (marketContainer.getOwner().uuid().equals(UUID.fromString("44f73f1e-4e4d-463d-8a25-fde5ae71f9c2")))
-                    marketContainer.getOwner().addListing(Items.APPLE, new PaymentData(PaymentTypes.BOONDOLLAR.get(), PaymentTypes.BOONDOLLAR.get().putData(5)));
+                    marketContainer.getOwner().addListing(Items.APPLE.getDefaultInstance(), TEMP_DATA);
             });
             
             updateVisibleMarkets(data.marketContainers, serverPlayer);
@@ -108,11 +110,11 @@ public class MarketData extends SavedData {
         setDirty();
     }
     
-    public void addNpcContainer(Component name, UUID id, List<Pair<Item, Integer>> entries) {
+    public void addNpcContainer(Component name, UUID id, List<Pair<ItemStack, Integer>> entries) {
         if (marketContainers.stream().noneMatch(container -> container.getOwner().uuid().equals(id))) {
-            Map<Item, PaymentData> map = new HashMap<>();
+            Map<ItemStack, PaymentData> map = new HashMap<>();
             
-            for (Pair<Item, Integer> entry : entries) {
+            for (Pair<ItemStack, Integer> entry : entries) {
                 PaymentType paymentType = PaymentTypes.BOONDOLLAR.get();
                 map.put(entry.getFirst(), new PaymentData(paymentType, paymentType.putData(entry.getSecond())));
             }

@@ -25,7 +25,10 @@ public class PaymentData {
     }
     
     public static PaymentData fromTag(CompoundTag tag) {
-        PaymentType paymentType = PaymentTypes.REGISTRY.get().getValue(ResourceLocation.tryParse(tag.getString("payment_type")));
+        String paymentRegistry = tag.getString("payment_type");
+        ResourceLocation paymentTypeLocation = ResourceLocation.tryParse(paymentRegistry);
+        PaymentType paymentType = PaymentTypes.REGISTRY.get().getValue(paymentTypeLocation);
+        
         CompoundTag data = tag.getCompound("data");
         
         return new PaymentData(paymentType, data);
@@ -34,7 +37,9 @@ public class PaymentData {
     public CompoundTag createTag() {
         CompoundTag tag = new CompoundTag();
         
-        tag.putString("payment_type", PaymentTypes.REGISTRY.get().getKey(paymentType).toString());
+        String paymentRegistry = PaymentTypes.REGISTRY.get().getKey(paymentType).toString();
+        tag.putString("payment_type", paymentRegistry);
+        
         tag.put("data", data);
         
         return tag;

@@ -5,18 +5,18 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 import java.util.UUID;
 
-public record Merchant(Component name, UUID uuid, Map<Item, PaymentData> listings) {
+public record Merchant(Component name, UUID uuid, Map<ItemStack, PaymentData> listings) {
     //TODO change Item to ItemStack, use ItemStack.of() and itemStack.save()
     public boolean playerMatch(Player player) {
         return player.getUUID().equals(uuid);
     }
     
-    public void addListing(Item item, PaymentData data) {
+    public void addListing(ItemStack item, PaymentData data) {
         listings.put(item, data);
     }
     
@@ -24,9 +24,9 @@ public record Merchant(Component name, UUID uuid, Map<Item, PaymentData> listing
         Component name = Component.literal(containerNbt.getString("name"));
         UUID id = containerNbt.getUUID("id");
         //TODO listings is not getting read properly
-        CompoundTag tag = containerNbt.getCompound("listings");
         ListTag listingsTag = containerNbt.getList("listings", Tag.TAG_LIST);
-        Map<Item, PaymentData> listings = PaymentType.listingsFromTag(listingsTag);
+        Map<ItemStack, PaymentData> listings = PaymentType.listingsFromTag(listingsTag);
+        
         return new Merchant(name, id, listings);
     }
     

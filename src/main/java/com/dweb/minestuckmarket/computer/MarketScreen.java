@@ -47,7 +47,7 @@ public class MarketScreen extends Screen {
         int containerOffset = 0;
         
         for (MarketContainer container : ClientMarketData.marketContainers) {
-            ExtendedButton iterateButton = new ExtendedButton(xOffset + 10, this.yOffset + 25 + (containerOffset * 5), 120, 16, container.getOwner().name(), button -> containerClick());
+            ExtendedButton iterateButton = new ExtendedButton(xOffset + 10, this.yOffset + 25 + (containerOffset * 20), 120, 16, container.getOwner().name(), button -> containerClick());
             marketButtons.add(iterateButton);
             addRenderableWidget(iterateButton);
             containerOffset++;
